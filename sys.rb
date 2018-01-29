@@ -28,7 +28,6 @@ def chat(message = "")
 	sleep(message.length/10)
 	puts message
 end
-
 def no_command
 	typing "그런 명령어는 없어요."
 end

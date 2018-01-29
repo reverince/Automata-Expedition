@@ -17,7 +17,7 @@ class Player
 	def info
 		"[#{puppet_level}]\t#{@name}\t인형 #{@puppets.size}개 | 은화 #{@silver}sv | 마네이드 #{@manade}ml"
 	end
-	
+
 	def puppet_level # 인형 총합 레벨
 		@puppets.map(&:lvl).reduce(:+) or 0
 	end
