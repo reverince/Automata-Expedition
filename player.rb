@@ -27,9 +27,9 @@ class Player
 		( i = @items.keys.map(&:name).index(item.name) ) ? ( @items[@items.keys[i]] += amount ) : ( @items[item] = amount )
 	end
 	def use_item(item, amount=1)
-		if ( i = @items.keys.map(&:name).index(item.name) )
+		if ( i = @items.keys.map(&:name).index(item.name) ) && @items[@items.keys[i]] >= amount
 			@items[@items.keys[i]] -= amount
-			@items.delete[@items.keys[i]] if @items[@items.keys[i]] <= 0
+			@items.delete(@items.keys[i]) if @items[@items.keys[i]] <= 0
 			true
 		else
 			false
@@ -37,6 +37,9 @@ class Player
 	end
 	def has_item(item) # 보유 여부 확인
 		@items.keys.map(&:name).index(item.name) ? true : false
+	end
+	def count_item(item)
+		@items[@items.keys[@items.keys.map(&:name).index(item.name)]]
 	end
 	
 	# 실버 / 마네이드

@@ -16,11 +16,6 @@ class Item
 end
 
 @doll = Item.new("인형 소체", "마네이드를 주입할 일반적인 인형입니다.", 10)
-class Doll < Item
-	def initialize
-		super("인형 소체", "마네이드를 주입할 일반적인 인형입니다.", 10)
-	end
-end
 
 class Weapon < Item
 	attr_reader :part

@@ -1,11 +1,23 @@
 require_relative "item"
 
-HD, BD, LA, RA, LG = 0, 1, 2, 3, 4
+MANADE_PER_POINT = 10 # 마네이드 비용
+BASE_HP = 100
+MAX_HP = 1000
+BASE_ATK = 10
+MAX_ATK = 100
+BASE_AMR = 0
+MAX_AMR = 100
+BASE_AGL = 0
+MAX_AGL = 100
+BASE_RET = 50
+MIN_RET = 0
+MAX_RET = 100
 
 class Puppet
-	attr_accessor :name, :lvl, :exp, :hp, :atk, :amr, :agl, :ret, :head, :body, :left_arm, :right_arm, :leg
+	attr_accessor :name, :lvl, :exp, :head, :body, :left_arm, :right_arm, :leg
+	attr_reader :hp, :atk, :amr, :agl, :ret
 	
-	def initialize(name, hp=100, atk=10, amr=0, agl=0, ret=50)
+	def initialize(name, hp=BASE_HP, atk=BASE_ATK, amr=BASE_AMR, agl=BASE_AGL, ret=BASE_RET)
 		@name = name
 		@lvl = 0
 		@exp = 0
@@ -22,19 +34,11 @@ class Puppet
 	def info
 		"[#{@lvl}]\t#{@name}\t[EXP #{@exp}] [HP #{@hp}] [ATK #{@atk}] [AMR #{@amr}] [AGL #{@agl}] [RET #{@ret}]"
 	end
-	
-	def broken(part)
-		case part
-			when HD
-				@head = false
-			when BD
-				@body = false
-			when LA
-				@left_arm = false
-			when RA
-				@right_arm = false
-			when LG
-				@leg = false
+	def info_part
+		if @head && @body && @left_arm && @right_arm @@ @leg
+			"ALL GREEN"
+		else
+			
 		end
 	end
 	

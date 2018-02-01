@@ -7,17 +7,17 @@ end
 loop do
 	typing "< 지휘본부 >"
 	puts @chara.info
-	puts "G. 출정\tM. 원정대\tL. 인형\tI. 아이템"
+	puts "G. 출정\tE. 원정대\tP. 인형\tI. 아이템"
 	puts "\tW. 공방\tS. 상점\tSA. 저장\tQ. 종료"
 	print ">> "
 	case (ipt = input)
 		when "G"
 		
 		
-		when "M" # 원정대
+		when "E" # 원정대
 		menu_expedition
 		
-		when "L" # 인형
+		when "P" # 인형
 		menu_puppet
 		
 		when "I" # 아이템
