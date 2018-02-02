@@ -1,12 +1,13 @@
 require_relative "puppet"
 
 class Player
-	attr_accessor :name, :puppets
+	attr_accessor :name, :puppets, :expeditions
 	attr_reader :items, :silver, :manade
 	
 	def initialize(name)
 		@name = name
 		@puppets = []
+		@expeditions = []
 		@items = {}
 		@silver = 100
 		@manade = 100
@@ -15,10 +16,11 @@ class Player
 		@name
 	end
 	def info
-		"[#{puppet_level}]\t#{@name}\t인형 #{@puppets.size}개 | 은화 #{@silver}sv | 마네이드 #{@manade}ml"
+		"[#{puppets_level}]\t#{@name}\t인형 #{@puppets.size}개 | 은화 #{@silver}sv | 마네이드 #{@manade}ml"
 	end
 
-	def puppet_level # 인형 총합 레벨
+	# 인형
+	def puppets_level # 인형 총합 레벨
 		@puppets.map(&:lvl).reduce(:+) or 0
 	end
 	

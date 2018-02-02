@@ -35,7 +35,7 @@ class Puppet
 		"[#{@lvl}]\t#{@name}\t[EXP #{@exp}] [HP #{@hp}] [ATK #{@atk}] [AMR #{@amr}] [AGL #{@agl}] [RET #{@ret}]"
 	end
 	def info_part
-		if @head && @body && @left_arm && @right_arm @@ @leg
+		if @head && @body && @left_arm && @right_arm && @leg
 			"ALL GREEN"
 		else
 			
@@ -47,9 +47,30 @@ end
 class Expedition
 	attr_accessor :name, :puppets
 	
-	def initialize(name)
+	def initialize(name, puppets=[])
 		@name = name
 		@puppets = []
+	end
+	def to_s
+		@name
+	end
+	def info
+		"[#{puppets_level}]\t#{@name}\t[[ #{puppets_level_name} ]]"
+	end
+	
+	# 인형
+	
+	def puppets_level # 인형 총합 레벨
+		@puppets.map(&:lvl).reduce(:+) or 0
+	end
+	def puppets_level_name
+		res = ""
+		@puppets.each do |puppet|
+			res += "[#{puppet.level}]\t#{puppet.name} / "
+		end
+		res = res[0..-4]
+		
+		res
 	end
 	
 end

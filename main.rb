@@ -11,7 +11,7 @@ loop do
 	puts "\tW. 공방\tS. 상점\tSA. 저장\tQ. 종료"
 	print ">> "
 	case (ipt = input)
-		when "G"
+		when "G" # 출정
 		
 		
 		when "E" # 원정대
