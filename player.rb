@@ -20,8 +20,28 @@ class Player
 	end
 
 	# 인형
+	def puppets_info(with_index=false)
+		ret = ""
+		@puppets.each_with_index do |puppet, i|
+			ret += (with_index) ? "#{i.to_s}.\t#{puppet.info}" : puppet.info
+			ret += "\n"
+		end
+		
+		ret
+	end
 	def puppets_level # 인형 총합 레벨
 		@puppets.map(&:lvl).reduce(:+) or 0
+	end
+	
+	# 원정대
+	def expeditions_info(with_index=false)
+		ret = ""
+		@expeditions.each_with_index do |expedition, i|
+			ret += (with_index) ? "#{i.to_s}.\t#{expedition.info}" : expedition.info
+			ret += "\n"
+		end
+		
+		ret
 	end
 	
 	# 아이템

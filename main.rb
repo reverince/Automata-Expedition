@@ -5,37 +5,42 @@ while !@chara
 end
 
 loop do
-	typing "< 지휘본부 >"
+	clear
+	
+	puts "< 지휘본부 >"
+	alerting
+	puts ""
 	puts @chara.info
-	puts "G. 출정\tE. 원정대\tP. 인형\tI. 아이템"
-	puts "\tW. 공방\tS. 상점\tSA. 저장\tQ. 종료"
+	puts "[G. 출정] [E. 원정대] [W. 공방]"
+	puts "          [I. 아이템] [S. 상점] [$. 저장] [@. 종료]"
 	print ">> "
 	case (ipt = input)
 		when "G" # 출정
-		
+		menu_go
 		
 		when "E" # 원정대
 		menu_expedition
 		
-		when "P" # 인형
-		menu_puppet
+		when "W" # 공방
+		menu_workshop
 		
 		when "I" # 아이템
 		menu_item
 		
-		when "W" # 공방
-		menu_workshop
-		
 		when "S" # 상점
 		menu_shop
 		
-		when "SA" # 저장
+		when "$" # 저장
 		save_file
 		
-		when "Q" # 종료
+		when "@" # 종료
 		quit_game
-	else
-		no_command
+		
+		#디버그 커맨드
+		when /EXP(\d+)$/
+		@chara.puppets[0].get_exp($1.to_i)
+		when /EEE$/
+		battle_sim
+		sleep(5)
 	end
-	clear
 end

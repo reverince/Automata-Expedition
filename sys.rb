@@ -1,7 +1,7 @@
 require "base64"
 require_relative "josa"
 require_relative "player"
-require_relative "item"
+require_relative "battle"
 
 SAVE_FILE = "save.dat"
 
@@ -11,7 +11,7 @@ end
 def input
 	while true
 		ipt = gets
-		if ipt.valid_encoding?
+		if ipt.valid_encoding? && ipt != "\n"
 			break
 		else
 			print "다시 입력해 주세요. >> "
@@ -19,22 +19,11 @@ def input
 	end
 	ipt.chop.upcase
 end
-def no_command
-	typing "그런 명령어는 없어요."
-end
-
-def typing(str) # 한 글자씩 출력
-	str.chars.each { |c| print c; sleep(0.05)}
-	sleep(0.1)
-	puts ""
-end
-
-def gauge(value, max) # 0 ~ max
-	per = value / max
-	"[" + "*" * (10 * per) + "." * [10 * (1-per), 0].max + "]"
-end
-def percent(value, max=100, sosu=2)
-	"#{( value.to_f / max * 100 ).round(2)}%"
+def alerting
+	unless @alert.nil?
+		puts @alert
+		@alert = nil
+	end
 end
 
 # 시스템 커맨드
@@ -44,12 +33,12 @@ def load_file
 		f = File.read(SAVE_FILE).split('|')
 		@chara = Marshal.load(Base64.decode64(f[0]))
 		#@map.tiles = Marshal.load(Base64.decode64(f[1]))
-		@chara ? ( typing "* 데이터를 불러왔어요! 어서오세요, #{@chara.name}님." ) : ( raise StandardError )
+		@chara ? ( puts "* 데이터를 불러왔어요! 어서오세요, #{@chara.name}님." ) : ( raise StandardError )
 	rescue Errno::ENOENT
 		#puts "* 저장 파일을 찾을 수 없어요."
 		new_file
 	rescue StandardError
-		puts "! 저장 파일이 손상되었습니다."
+		puts "[!] 저장 파일이 손상되었습니다."
 		exit(1)
 	end
 end
@@ -65,7 +54,8 @@ def save_file
 	#f.write "|"
 	#f.puts Base64.encode64(Marshal.dump(@map.tiles))
 	f.close
-	typing "* 데이터를 저장했어요!"
+	puts "* 데이터를 저장했어요!"
+	sleep(1)
 end
 def quit_game
 	save_file
@@ -74,25 +64,37 @@ end
 
 # 지휘본부 커맨드
 
+def menu_go # 출정
+	
+end
+
 def menu_expedition # 원정대
 	loop do
 		clear
-		typing "< 원정대 관리 >"
-		if @chara.expeditions.empty?
-			typing "* 구성한 원정대가 없어요."
-		end
 		
-		@chara.expeditions.each do |expedition|
-			puts expedition.info
+		puts "< 원정대 관리 >"
+		alerting
+		puts ""
+		if @chara.expeditions.any?
+			puts @chara.expeditions_info(with_index=true)
+		else
+			puts "* 구성한 원정대가 없어요."
 		end
-		puts "[N. 신규]\t[E. 변경]\t[Q. 본부]"
+		puts ""
+		puts "[N. 추가] [0E. 편집] [0R. 이름 변경] [0D. 삭제] [Q. 본부]"
 		print ">> "
 		case (ipt = input)
 			when "N"
 				new_expedition
 			
-			when "E"
-				edit_expedition
+			when /^(\d+)E$/
+				edit_expedition($1.to_i)
+			
+			when /^(\d+)R$/
+				rename_expedition($1.to_i)
+			
+			when /^(\d+)D$/
+				delete_expedition($1.to_i)
 			
 			when "Q"
 				return
@@ -100,44 +102,16 @@ def menu_expedition # 원정대
 	end
 end
 
-def menu_puppet # 인형
-	clear
-	typing "< 인형 목록 >"
-	
-	if @chara.puppets.empty?
-		typing "* 인형이 하나도 없어요."
-		return
-	end
-	
-	@chara.puppets.each do |puppet|
-		puts puppet.info
-	end
-	print ">> "
-	ipt = input
-end
-
-def menu_item # 아이템
-	clear
-	typing "< 아이템 목록 >"
-	
-	if @chara.items.empty?
-		typing "* 아이템이 하나도 없어요."
-		return
-	end
-	
-	@chara.items.each do |item, amount|
-		puts "[#{amount.to_s}개]\t" + item.info
-	end
-	print ">> "
-	ipt = input
-end
-
 def menu_workshop # 공방
 	loop do
 		clear
 		
-		typing "< 공방 >"
-		puts "[C. 인형 제작]\t[Q. 본부]"
+		puts "< 공방 >"
+		alerting
+		puts ""
+		puts @chara.puppets_info(with_index=true)
+		
+		puts "[C. 인형 제작] [Q. 본부]"
 		print ">> "
 		case (ipt = input)
 			when "C"
@@ -149,12 +123,31 @@ def menu_workshop # 공방
 	end
 end
 
+def menu_item # 아이템
+	clear
+	
+	puts "< 아이템 목록 >"
+	puts ""
+	if @chara.items.empty?
+		@alert = "* 아이템이 하나도 없어요."
+		return
+	end
+	
+	@chara.items.each do |item, amount|
+		puts "[#{amount.to_s}개]\t" + item.info
+	end
+	puts ""
+	print ">> "
+	ipt = input
+end
+
 def menu_shop # 상점
 	loop do
 		clear
-		typing "< 상점 >"
-		
-		puts "[B. 아이템 구매]\t[S. 아이템 판매]\t[Q. 본부]"
+		puts "< 상점 >"
+		alerting
+		puts ""
+		puts "[B. 아이템 구매] [S. 아이템 판매] [Q. 본부]"
 		print ">> "
 		case (ipt = input)
 			when "B"
@@ -173,16 +166,22 @@ end
 
 def new_expedition # 원정대 추가
 	if @chara.puppets.empty?
-		typing "* 인형이 하나도 없어요."
+		@alert = "[!] 인형이 하나도 없어요."
 		return
 	end
 	
 	name = ""
 	loop do
+		clear
+		
+		puts "< 원정대 추가 >"
+		alerting
+		puts ""
+		puts "[Q. 취소]"
 		print "이름 >> "
 		return if (name = input) == "Q"
 		if @chara.expeditions.map(&:name).include? name
-			puts "[!] 같은 이름의 원정대가 있어요."
+			@alert = "[!] 같은 이름의 원정대가 있어요."
 		else
 			break
 		end
@@ -193,23 +192,26 @@ def new_expedition # 원정대 추가
 	loop do
 		clear
 		
+		puts "< 원정대 추가 >"
+		puts ""
 		puppets_name = ""
 		expedition.puppets.each_with_index do |puppet, i|
-			puppets_name += "[#{i.to_s}] #{puppet.name}, "
+			puppets_name += "#{i.to_s}. #{puppet.name} / "
 		end
-		puts "#{expedition} 대원: " + puppets_name[0..-3]
+		puts "#{expedition} 대원: " + puppets_name[0..-4]
 		puts ""
 		@chara.puppets.each_with_index do |puppet, i|
-			puts "[#{i.to_s}]\t" + puppet.info
+			puts "#{i.to_s}.\t" + puppet.info
 		end
 		puts ""
 		puts "[!] 원정대가 비었어요." unless expedition.puppets.any?
-		puts "[D. 완료]\t[Q. 취소]\t[0+. 인형 추가]\t[0-. 인형 제외]\t[H. 도움말]"
+		alerting
+		puts "[D. 완료] [Q. 취소] [0+. 인형 추가] [0-. 인형 제외] [H. 도움말]"
 		print ">> "
 		case (ipt = input)
 		when /^(\d+)\+$/
 			if expedition.puppets.map(&:name).include? @chara.puppets[$1.to_i].name
-				typing "[!] 이미 추가한 인형이에요."
+				@alert = "[!] 이미 추가한 인형이에요."
 			else
 				expedition.puppets << @chara.puppets[$1.to_i]
 			end
@@ -220,39 +222,91 @@ def new_expedition # 원정대 추가
 		when "D"
 			if expedition.puppets.any?
 				@chara.expeditions << expedition
-				typing "* 새 원정대 " + josa(expedition.name, "를") + " 만들었어요."
+				@alert = "* 새 원정대 " + josa(expedition.name, "를") + " 만들었어요."
+				return
 			else
-				typing "[!] 원정대에 아무 인형도 추가하지 않았어요."
+				@alert = "[!] 원정대에 아무 인형도 추가하지 않았어요."
 				next
 			end
 		
 		when "H"
-			typing "[?] 인형 번호 뒤에 '+', '-'를 붙여 입력하면 추가 또는 제외할 수 있어요..."
+			@alert = "[?] 인형 번호 뒤에 '+', '-'를 붙여 입력하면 추가 또는 제외할 수 있어요..."
 		when "Q"
 			return
 		end
 	end
 end
 
-def edit_expedition
+def edit_expedition(i)
+	if @chara.expeditions[i].nil?
+		return
+	end
 	
+	# TODO
+end
+
+def rename_expedition(i)
+	if @chara.expeditions[i].nil?
+		return
+	end
+	
+	name = ""
+	loop do
+		clear
+		
+		puts "< 원정대 이름 변경 >"
+		puts ""
+		alerting
+		puts "[Q. 취소]"
+		print "이름 >> "
+		return if (name = input) == "Q"
+		if @chara.expeditions.map(&:name).include? name
+			@alert = "[!] 같은 이름의 원정대가 있어요."
+		else
+			break
+		end
+	end
+	
+	@chara.expeditions[i].name = name
+	@alert = "* 원정대 이름을 " + josa(name, "로") + " 바꿨어요."
+end
+
+def delete_expedition(i)
+	if @chara.expeditions[i].nil?
+		return
+	end
+	
+	name = @chara.expeditions[i].name
+	puts "* 정말 원정대 " + josa(name, "를") + " 삭제할까요?"
+	print "[Y/N] >> "
+	
+	if input == "Y"
+		@chara.expeditions.delete_at(i)
+		@alert = "* 원정대 " + josa(name, "를") + " 삭제했어요."
+	end
 end
 
 # 공방 커맨드
 
 def make_puppet # 인형 제작
 	unless @chara.has_item(@doll)
-		typing "[!] 인형 소체가 부족해요."
+		@alert = "[!] 인형 소체가 부족해요."
 		return
 	end
 	
-	puts "인형 소체 1개를 사용해 인형을 제작합니다. [Q. 취소]"
-	
+	alert = "* 인형 소체 1개를 사용해 인형을 제작합니다."
+	name = ""
 	loop do
+		clear
+		
+		puts "< 인형 제작 >"
+		puts ""
+		puts alert
+		puts "[Q. 취소]"
 		print "이름 >> "
 		return if (name = input) == "Q"
 		if @chara.puppets.map(&:name).include? name
-			puts "[!] 같은 이름의 인형이 있어요."
+			alert = "[!] 같은 이름의 인형이 있어요."
 		else
 			break
 		end
@@ -268,17 +322,22 @@ def make_puppet # 인형 제작
 		point = (hp-BASE_HP)/10 + (atk-BASE_ATK) + (amr-BASE_AMR) + (agl-BASE_AGL) + (ret-BASE_RET)/5
 		price = point * MANADE_PER_POINT
 		
+		puts "< 인형 제작 >"
+		puts ""
+		puts name
 		puts "HP\t#{sprintf("%4d", hp.to_s)}\t(#{sprintf("%6.2f%", hp.to_f / MAX_HP * 100)})"
 		puts "ATK\t#{sprintf("%4d", atk.to_s)}\t(#{sprintf("%6.2f%", atk.to_f / MAX_ATK * 100)})"
 		puts "AMR\t#{sprintf("%4d", amr.to_s)}\t(#{sprintf("%6.2f%", amr.to_f / MAX_AMR * 100)})"
 		puts "AGL\t#{sprintf("%4d", agl.to_s)}\t(#{sprintf("%6.2f%", agl.to_f / MAX_AGL * 100)})"
 		puts "RET\t#{sprintf("%4d", ret.to_s)}\t(#{sprintf("%6.2f%", ret.to_f / MAX_RET * 100)})"
 		puts ""
+		puts "주입 포인트: [#{point}pt]\t소모 마네이드: [#{price}/#{@chara.manade}]\n"
+		
 		puts "[!] 주입 수준이 0 미만이에요. 제작할 수 없어요." if point < 0
 		puts "[!] 마네이드가 부족해요. 제작할 수 없어요." if price > @chara.manade
-		puts "주입 포인트: [#{point}pt]\t소모 마네이드: [#{price}/#{@chara.manade}]"
-		puts "[D. 완료]\t[Q. 취소]\t[H. 도움말]"
-		
+		alerting
+		puts "[D. 완료] [Q. 취소] [H. 도움말]"
+		print ">> "
 		case (ipt = input)
 			when /HP(\+*)(\-*)/
 				hp += 10 * ($1.length - $2.length)
@@ -293,22 +352,29 @@ def make_puppet # 인형 제작
 			
 			when "D"
 				if point < 0
-					typing "[!] 주입 수준이 0 미만이에요."
 					next
 				elsif price > @chara.manade
-					typing "[!] 마네이드가 부족해요."
 					next
 				end
 				done = true
 			
 			when "H"
-			typing "[?] 'HP+++', 'ATK--' 등 명령어로 능력 주입치를 조절할 수 있어요..."
+			@alert = "[?] 'HP+++', 'ATK--' 등 명령어로 능력 주입치를 조절할 수 있어요..."
 			when "Q"
 			return
 		end
+		
 		hp = MAX_HP if hp > MAX_HP
+		hp = MIN_HP if hp < MIN_HP
 		atk = MAX_ATK if atk > MAX_ATK
 		atk = -MAX_ATK if atk < -MAX_ATK
+		amr = MAX_AMR if amr > MAX_AMR
+		amr = 0 if amr < 0
+		agl = MAX_AGL if agl > MAX_AGL
+		agl = 0 if agl < 0
+		ret = MAX_RET if ret > MAX_RET
+		ret = MIN_RET if ret < MIN_RET
+		
 		break if done
 	end
 	
@@ -316,9 +382,11 @@ def make_puppet # 인형 제작
 		puppet = Puppet.new(name, hp, atk, amr, agl, ret)
 		@chara.use_item(@doll)
 		@chara.puppets << puppet
-		typing "* 새 인형 " + josa(name, "를") + " 만들었어요."
+		puts "* 새 인형 " + josa(name, "를") + " 만들었어요."
+		sleep(1)
 	else
-		typing "[!] 마네이드가 부족해요."
+		puts "[!] 마네이드가 부족해요."
+		sleep(1)
 	end
 end
 
@@ -327,26 +395,31 @@ end
 def buy_item # 아이템 구매
 	items = [@doll]
 	
+	alert = ""
 	loop do
 		clear
 		
+		puts "< 아이템 구매 >"
+		alerting
+		puts ""
 		items.each_with_index do |item, i|
-			puts "[#{i.to_s}]\t" + item.info
+			puts "#{i.to_s}.\t" + item.info
 		end
-		puts "번호를 입력하세요. [Q. 뒤로]"
+		puts "번호를 입력하세요."
+		puts "[Q. 뒤로]"
 		print ">> "
 		case (ipt = input)
 			when /^(\d+)$/
 				if item = items[$1.to_i]
 					puts "* " + josa(item.name, "는") + " #{item.value}sv인데, 몇 개 사시겠어요?"
-					amount = input.to_i
+					if (amount = input.to_i) > 0
 					price = item.value * amount
-					
-					if @chara.use_silver(price)
-						typing "* #{price}sv 받았어요. #{item.name} #{amount}개 드릴게요."
-						@chara.get_item(item, amount)
-					else
-						typing "* 돈이 부족한 것 같은데요."
+						if @chara.use_silver(price)
+							@alert = "* #{price}sv 받았어요. #{item.name} #{amount}개 드릴게요."
+							@chara.get_item(item, amount)
+						else
+							@alert = "* 돈이 부족한 것 같은데요."
+						end
 					end
 				end
 			
@@ -358,35 +431,39 @@ end
 
 def sell_item # 아이템 판매
 	if @chara.items.empty?
-		typing "* 아이템이 하나도 없어요."
+		@alert = "* 아이템이 하나도 없어요."
 		return
 	end
 	
 	loop do
 		clear
 		
+		puts "< 아이템 판매 >"
+		alerting
+		puts ""
 		@chara.items.keys.each_with_index do |item, i|
-			puts "[#{i.to_s}]\t[#{@chara.count_item(item)}개]\t#{item.info}"
+			puts "#{i.to_s}. \t[#{@chara.count_item(item)}]\t#{item.info}"
 		end
-		puts "번호를 입력하세요. [Q. 뒤로]"
+		puts "번호를 입력하세요."
+		puts "[Q. 뒤로]"
 		print ">> "
 		case (ipt = input)
 			when /^(\d+)$/
 				if item = @chara.items.keys[$1.to_i]
 					if item.value.nil?
-						typing "* 그건 안 사요."
+						@alert = "* 그건 안 사요."
 						next
 					end
 					
 					puts "* " + josa(item.name, "는") + " #{item.value}sv인데, 몇 개 파시겠어요?"
-					amount = input.to_i
-					price = item.value * amount
-					
-					if @chara.use_item(item, amount)
-						typing "* #{item.name} #{amount}개 받았어요. #{price}sv 드릴게요."
-						@chara.get_silver(price)
-					else
-						typing "* 그만큼은 가지고 있지 않은 것 같은데요."
+					if (amount = input.to_i) > 0
+						price = item.value * amount
+						if @chara.use_item(item, amount)
+							@alert = "* #{item.name} #{amount}개 받았어요. #{price}sv 드릴게요."
+							@chara.get_silver(price)
+						else
+							@alert = "* 그만큼은 가지고 있지 않은 것 같은데요."
+						end
 					end
 				end
 			
