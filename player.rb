@@ -30,7 +30,7 @@ class Player
 		ret
 	end
 	def puppets_level # 인형 총합 레벨
-		@puppets.map(&:lvl).reduce(:+) or 0
+		@puppets.sum(&:lvl) or 0
 	end
 	
 	# 원정대
