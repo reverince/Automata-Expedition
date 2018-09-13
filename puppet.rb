@@ -76,6 +76,7 @@ class Puppet < Character
 	def initialize(name, hp=BASE_HP, atk=BASE_ATK, amr=BASE_AMR, agl=BASE_AGL, ret=BASE_RET)
 		super(name, hp, atk, amr, agl, ret)
 	end
+  
 	def info
 		"[#{@lvl}]\t#{@name}\t[EXP #{@exp}] [HP #{@chp}/#{@hp}] [ATK #{@atk}] [AMR #{@amr}] [AGL #{@agl}] [RET #{@ret}] #{info_part}"
 	end
@@ -113,9 +114,11 @@ class Expedition
 		@name = name
 		@puppets = []
 	end
+  
 	def to_s
 		@name
 	end
+  
 	def info
 		"[#{puppets_level}]\t#{@name}\t[[ #{puppets_level_name} ]]"
 	end
@@ -125,6 +128,7 @@ class Expedition
 	def puppets_level # 인형 총합 레벨
 		@puppets.map(&:lvl).reduce(:+) or 0
 	end
+  
 	def puppets_level_name
 		ret = ""
 		@puppets.each do |puppet|
@@ -144,6 +148,7 @@ class Expedition
 		
 		ret[0..-2]
 	end
+  
 	def defeated? # lag??
 		ret = false
 		@puppets.each do |puppet|
@@ -166,6 +171,7 @@ class Enemy < Character
 		super(name, hp, atk, amr, agl, ret)
 		@lvl = [(hp - 100) / 100 + atk + amr + agl, 0].max
 	end
+  
 	def status
 		p_chp = (@chp * 10 / @hp).round
 		"ENEMY\t[#{@lvl}] #{@name}\t[#{form}]\t[HP " + "■" * p_chp + "□" * (10 - p_chp) + "#{@chp}/#{@hp}] #{info_part}"
@@ -174,7 +180,9 @@ class Enemy < Character
 end
 
 class Spider < Enemy
+  
 	def initialize
 		super("거미", hp=100, atk=20, amr=0, agl=10)
 	end
+  
 end

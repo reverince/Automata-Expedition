@@ -34,6 +34,7 @@ def battle(enemy)
 		
 	end
 end
+
 def battle_sim
 	@party = @chara.expeditions[0] if @party.nil?
 	battle(Spider.new)
