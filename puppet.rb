@@ -16,7 +16,7 @@ MIN_RET = 0
 NORMAL, GUARDING, GAINING = 0, 1, 2
 
 class Character
-	attr_accessor :name, :form, :head, :body, :left_arm, :right_arm, :leg, :chp
+	attr_accessor :name, :form, :chp
 	attr_reader :lvl, :hp, :atk, :amr, :agl, :ret
 	
 	def initialize(name, hp=BASE_HP, atk=BASE_ATK, amr=BASE_AMR, agl=BASE_AGL, ret=BASE_RET)
@@ -29,26 +29,14 @@ class Character
 		@amr = amr
 		@agl = agl
 		@ret = ret
-		@head = @body = @left_arm = @right_arm = @leg = true
 	end
+  
 	def to_s
 		@name
 	end
+  
 	def info
-		"[#{@lvl}]\t#{@name}\t[HP #{@chp}/#{@hp}] [ATK #{@atk}] [AMR #{@amr}] [AGL #{@agl}] [RET #{@ret}] #{info_part}"
-	end
-	def info_part
-		if @head && @body && @left_arm && @right_arm && @leg
-			return "[OK!]"
-		else
-			ret = ""
-			ret += "[-HD] " unless @head
-			ret += "[-BD] " unless @body
-			ret += "[-LA] " unless @left_arm
-			ret += "[-RA] " unless @right_arm
-			ret += "[-LG] " unless @leg
-		end
-		ret[0..-2]
+		"[#{@lvl}]\t#{@name}\t[EXP #{@exp}] [HP #{@chp}/#{@hp}] [ATK #{@atk}] [AMR #{@amr}] [AGL #{@agl}] [RET #{@ret}]"
 	end
 	
 	def form
@@ -77,13 +65,9 @@ class Puppet < Character
 		super(name, hp, atk, amr, agl, ret)
 	end
   
-	def info
-		"[#{@lvl}]\t#{@name}\t[EXP #{@exp}] [HP #{@chp}/#{@hp}] [ATK #{@atk}] [AMR #{@amr}] [AGL #{@agl}] [RET #{@ret}] #{info_part}"
-	end
-	
 	def status
 		p_chp = (@chp * 10 / @hp).round
-		"[#{@lvl}] #{@name}\t[#{form}]\t[HP " + "■" * p_chp + "□" * (10 - p_chp) + "#{@chp}/#{@hp}] [#{@atk}|#{@amr}|#{@agl}] #{info_part}"
+		"[#{@lvl}] #{@name}\t[#{form}]\t[HP " + "■" * p_chp + "□" * (10 - p_chp) + " #{@chp}/#{@hp}] [#{@atk}|#{@amr}|#{@agl}]"
 	end
 	
 	def get_exp(amount)
@@ -120,7 +104,7 @@ class Expedition
 	end
   
 	def info
-		"[#{puppets_level}]\t#{@name}\t[[ #{puppets_level_name} ]]"
+		"[#{puppets_level}]\t#{@name}\t[ #{puppets_level_name} ]"
 	end
 	
 	# 인형
@@ -174,7 +158,7 @@ class Enemy < Character
   
 	def status
 		p_chp = (@chp * 10 / @hp).round
-		"ENEMY\t[#{@lvl}] #{@name}\t[#{form}]\t[HP " + "■" * p_chp + "□" * (10 - p_chp) + "#{@chp}/#{@hp}] #{info_part}"
+		"ENEMY\t[#{@lvl}] #{@name}\t[#{form}]\t[HP " + "■" * p_chp + "□" * (10 - p_chp) + " #{@chp}/#{@hp}]"
 	end
 	
 end

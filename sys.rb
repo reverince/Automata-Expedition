@@ -3,7 +3,7 @@ require_relative "josa"
 require_relative "player"
 require_relative "battle"
 
-SAVE_FILE = "save.dat"
+SAVE_FILE = __dir__ + "/save.dat"
 
 def clear
   system "cls" or system "clear"
@@ -55,8 +55,6 @@ end
 def save_file
   f = File.open(SAVE_FILE, "w")
   f.puts Base64.encode64(Marshal.dump(@chara))
-  #f.write "|"
-  #f.puts Base64.encode64(Marshal.dump(@map.tiles))
   f.close
   puts "* 데이터를 저장했어요!"
   sleep(1)
@@ -305,7 +303,7 @@ def make_puppet # 인형 제작
     
     puts "< 인형 제작 >"
     puts ""
-    puts alert
+    alerting
     puts "[Q. 취소]"
     print "이름 >> "
     return if (name = input) == "Q"
@@ -329,11 +327,11 @@ def make_puppet # 인형 제작
     puts "< 인형 제작 >"
     puts ""
     puts name
-    puts "HP\t#{sprintf("%4d", hp.to_s)}\t(#{sprintf("%6.2f%", hp.to_f / MAX_HP * 100)})"
-    puts "ATK\t#{sprintf("%4d", atk.to_s)}\t(#{sprintf("%6.2f%", atk.to_f / MAX_ATK * 100)})"
-    puts "AMR\t#{sprintf("%4d", amr.to_s)}\t(#{sprintf("%6.2f%", amr.to_f / MAX_AMR * 100)})"
-    puts "AGL\t#{sprintf("%4d", agl.to_s)}\t(#{sprintf("%6.2f%", agl.to_f / MAX_AGL * 100)})"
-    puts "RET\t#{sprintf("%4d", ret.to_s)}\t(#{sprintf("%6.2f%", ret.to_f / MAX_RET * 100)})"
+    puts "HP\t#{sprintf("%4d", hp.to_s)}\t(#{sprintf("%6.2f", hp.to_f / MAX_HP * 100)})"
+    puts "ATK\t#{sprintf("%4d", atk.to_s)}\t(#{sprintf("%6.2f", atk.to_f / MAX_ATK * 100)})"
+    puts "AMR\t#{sprintf("%4d", amr.to_s)}\t(#{sprintf("%6.2f", amr.to_f / MAX_AMR * 100)})"
+    puts "AGL\t#{sprintf("%4d", agl.to_s)}\t(#{sprintf("%6.2f", agl.to_f / MAX_AGL * 100)})"
+    puts "RET\t#{sprintf("%4d", ret.to_s)}\t(#{sprintf("%6.2f", ret.to_f / MAX_RET * 100)})"
     puts ""
     puts "주입 포인트: [#{point}pt]\t소모 마네이드: [#{price}/#{@chara.manade}]\n"
     
