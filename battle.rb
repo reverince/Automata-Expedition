@@ -7,6 +7,7 @@ class Map
 	def to_s
 		@name
 	end
+  
 end
 
 def battle(enemy)

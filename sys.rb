@@ -182,7 +182,7 @@ def new_expedition # 원정대 추가
     puts "[Q. 취소]"
     print "이름 >> "
     return if (name = input) == "Q"
-    if @chara.expeditions.map(&:name).include? name
+    if @chara.expeditions.map(&:name).include?(name)
       @alert = "[!] 같은 이름의 원정대가 있어요."
     else
       break
@@ -212,7 +212,7 @@ def new_expedition # 원정대 추가
     print ">> "
     case (ipt = input)
     when /^(\d+)\+$/
-      if expedition.puppets.map(&:name).include? @chara.puppets[$1.to_i].name
+      if expedition.puppets.map(&:name).include?(@chara.puppets[$1.to_i].name)
         @alert = "[!] 이미 추가한 인형이에요."
       else
         expedition.puppets << @chara.puppets[$1.to_i]
@@ -262,7 +262,7 @@ def rename_expedition(i)
     puts "[Q. 취소]"
     print "이름 >> "
     return if (name = input) == "Q"
-    if @chara.expeditions.map(&:name).include? name
+    if @chara.expeditions.map(&:name).include?(name)
       @alert = "[!] 같은 이름의 원정대가 있어요."
     else
       break
@@ -307,7 +307,7 @@ def make_puppet # 인형 제작
     puts "[Q. 취소]"
     print "이름 >> "
     return if (name = input) == "Q"
-    if @chara.puppets.map(&:name).include? name
+    if @chara.puppets.map(&:name).include?(name)
       alert = "[!] 같은 이름의 인형이 있어요."
     else
       break
@@ -316,69 +316,6 @@ def make_puppet # 인형 제작
   
   hp = BASE_HP; atk = BASE_ATK; amr = BASE_AMR; agl = BASE_AGL; ret = BASE_RET
   point = price = 0
-  done = false
-  
-  loop do
-    clear
-    
-    point = (hp-BASE_HP)/10 + (atk-BASE_ATK) + (amr-BASE_AMR) + (agl-BASE_AGL) + (ret-BASE_RET)/5
-    price = point * MANADE_PER_POINT
-    
-    puts "< 인형 제작 >"
-    puts ""
-    puts name
-    puts "HP\t#{sprintf("%4d", hp.to_s)}\t(#{sprintf("%6.2f", hp.to_f / MAX_HP * 100)})"
-    puts "ATK\t#{sprintf("%4d", atk.to_s)}\t(#{sprintf("%6.2f", atk.to_f / MAX_ATK * 100)})"
-    puts "AMR\t#{sprintf("%4d", amr.to_s)}\t(#{sprintf("%6.2f", amr.to_f / MAX_AMR * 100)})"
-    puts "AGL\t#{sprintf("%4d", agl.to_s)}\t(#{sprintf("%6.2f", agl.to_f / MAX_AGL * 100)})"
-    puts "RET\t#{sprintf("%4d", ret.to_s)}\t(#{sprintf("%6.2f", ret.to_f / MAX_RET * 100)})"
-    puts ""
-    puts "주입 포인트: [#{point}pt]\t소모 마네이드: [#{price}/#{@chara.manade}]\n"
-    
-    puts "[!] 주입 수준이 0 미만이에요. 제작할 수 없어요." if point < 0
-    puts "[!] 마네이드가 부족해요. 제작할 수 없어요." if price > @chara.manade
-    alerting
-    puts "[D. 완료] [Q. 취소] [H. 도움말]"
-    print ">> "
-    case (ipt = input)
-      when /HP(\+*)(\-*)/
-        hp += 10 * ($1.length - $2.length)
-      when /ATK(\+*)(\-*)/
-        atk += 1 * ($1.length - $2.length)
-      when /AMR(\+*)(\-*)/
-        amr += 1 * ($1.length - $2.length)
-      when /AGL(\+*)(\-*)/
-        agl += 1 * ($1.length - $2.length)
-      when /RET(\+*)(\-*)/
-        ret += 5 * ($1.length - $2.length)
-      
-      when "D"
-        if point < 0
-          next
-        elsif price > @chara.manade
-          next
-        end
-        done = true
-      
-      when "H"
-      @alert = "[?] 'HP+++', 'ATK--' 등 명령어로 능력 주입치를 조절할 수 있어요..."
-      when "Q"
-      return
-    end
-    
-    hp = MAX_HP if hp > MAX_HP
-    hp = MIN_HP if hp < MIN_HP
-    atk = MAX_ATK if atk > MAX_ATK
-    atk = -MAX_ATK if atk < -MAX_ATK
-    amr = MAX_AMR if amr > MAX_AMR
-    amr = 0 if amr < 0
-    agl = MAX_AGL if agl > MAX_AGL
-    agl = 0 if agl < 0
-    ret = MAX_RET if ret > MAX_RET
-    ret = MIN_RET if ret < MIN_RET
-    
-    break if done
-  end
   
   if @chara.use_manade(price)
     puppet = Puppet.new(name, hp, atk, amr, agl, ret)
@@ -395,7 +332,7 @@ end
 # 상점 커맨드
 
 def buy_item # 아이템 구매
-  items = [@doll]
+  items = @dolls + @equipments  # 상점 아이템 목록
   
   alert = ""
   loop do
