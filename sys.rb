@@ -78,7 +78,7 @@ def menu_expedition # 원정대
     alerting
     puts ""
     if @chara.expeditions.any?
-      puts @chara.expeditions_info(with_index=true)
+      puts @chara.expeditions(with_index: true)
     else
       puts "* 구성한 원정대가 없어요."
     end
@@ -111,14 +111,13 @@ def menu_workshop # 공방
     puts "< 공방 >"
     alerting
     puts ""
-    puts @chara.puppets_info(with_index=true)
-    
+    puts @chara.puppets_info(with_index: true)
+    puts ""
     puts "[C. 인형 제작] [Q. 본부]"
     print ">> "
     case (ipt = input)
       when "C"
         make_puppet
-      
       when "Q"
         return
     end
@@ -135,9 +134,7 @@ def menu_item # 아이템
     return
   end
   
-  @chara.items.each do |item, amount|
-    puts "[#{amount.to_s}개]\t" + item.info
-  end
+  @chara.show_items
   puts ""
   print ">> "
   ipt = input
@@ -154,10 +151,8 @@ def menu_shop # 상점
     case (ipt = input)
       when "B"
         buy_item
-      
       when "S"
         sell_item
-      
       when "Q"
         return
     end
@@ -177,8 +172,8 @@ def new_expedition # 원정대 추가
     clear
     
     puts "< 원정대 추가 >"
-    alerting
     puts ""
+    alerting
     puts "[Q. 취소]"
     print "이름 >> "
     return if (name = input) == "Q"
@@ -291,15 +286,31 @@ end
 # 공방 커맨드
 
 def make_puppet # 인형 제작
-  unless @chara.has_item(@doll)
+  if @chara.has_item_type?(@dolls)
+    @chara.show_items(@dolls, with_index: true)
+    puts "번호를 입력하세요."
+    puts "[Q. 뒤로]"
+    print ">> "
+    dolls = @chara.items.keys.select { |item| item.type?(@dolls)}
+    doll = nil
+    loop do
+      case (ipt = input)
+        when /^(\d+)$/
+          doll = dolls[ipt.to_i]
+          break unless doll.nil?
+        when "Q"
+          return
+      end
+    end
+  else
     @alert = "[!] 인형 소체가 부족해요."
     return
   end
   
-  alert = "* 인형 소체 1개를 사용해 인형을 제작합니다."
+  @alert = "* #{doll} 1개를 사용해 인형을 제작합니다."
   name = ""
   loop do
-    clear
+    #clear
     
     puts "< 인형 제작 >"
     puts ""
@@ -314,12 +325,12 @@ def make_puppet # 인형 제작
     end
   end
   
-  hp = BASE_HP; atk = BASE_ATK; amr = BASE_AMR; agl = BASE_AGL; ret = BASE_RET
-  point = price = 0
+  price = doll.mp * 3
+  hp = doll.hp, mp = doll.mp, atk = doll.atk, amr = doll.amr, agl = doll.agl, atr = doll.atr, ret = doll.ret
   
   if @chara.use_manade(price)
-    puppet = Puppet.new(name, hp, atk, amr, agl, ret)
-    @chara.use_item(@doll)
+    puppet = Puppet.new(name, hp, mp, atk, amr, agl, atr, ret)
+    @chara.use_item(doll)
     @chara.puppets << puppet
     puts "* 새 인형 " + josa(name, "를") + " 만들었어요."
     sleep(1)
@@ -349,7 +360,7 @@ def buy_item # 아이템 구매
     print ">> "
     case (ipt = input)
       when /^(\d+)$/
-        if item = items[$1.to_i]
+        if item = items[ipt.to_i]
           puts "* " + josa(item.name, "는") + " #{item.value}sv인데, 몇 개 사시겠어요?"
           if (amount = input.to_i) > 0
           price = item.value * amount
@@ -363,7 +374,7 @@ def buy_item # 아이템 구매
         end
       
       when "Q"
-      return
+        return
     end
   end
 end
@@ -407,7 +418,7 @@ def sell_item # 아이템 판매
         end
       
       when "Q"
-      return
+        return
     end
   end
 end

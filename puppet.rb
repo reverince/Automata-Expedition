@@ -1,29 +1,18 @@
 require_relative "item"
 
-BASE_HP = 100
-MAX_HP = 1000
-MIN_HP = 100
-BASE_ATK = 0
-MAX_ATK = 100
-BASE_AMR = 0
-MAX_AMR = 100
-BASE_AGL = 0
-MAX_AGL = 100
-BASE_RET = 50
-MAX_RET = 100
-MIN_RET = 0
 WAIT, ATTACK, GUARD, READY = 0, 1, 2, 4
 
 class Character
-  attr_accessor :name, :form, :chp
-  attr_reader :lvl, :hp, :atk, :amr, :agl, :ret
+  attr_accessor :name, :form, :chp, :cmp
+  attr_reader :lvl, :hp, :mp, :atk, :amr, :agl, :ret
   
-  def initialize(name, hp=BASE_HP, atk=BASE_ATK, amr=BASE_AMR, agl=BASE_AGL, ret=BASE_RET)
+  def initialize(name, hp, mp, atk, amr, agl, ret)
     @name = name
-    @form = NORMAL
+    @form = WAIT
     @lvl = 0
     @exp = 0
     @chp = @hp = hp
+    @cmp = @mp = mp
     @atk = atk
     @amr = amr
     @agl = agl
@@ -33,7 +22,7 @@ class Character
     @name
   end
   def info
-    "[#{@lvl}]\t#{@name}\t[EXP #{@exp}] [HP #{@chp}/#{@hp}] [ATK #{@atk}] [AMR #{@amr}] [AGL #{@agl}] [RET #{@ret}]"
+    "[#@lvl]\t#@name\t[EXP #@exp] [HP #@chp/#@hp] [MP #@cmp/#@mp] [ATK #@atk] [AMR #@amr] [AGL #@agl] [ATR #@atr] [RET #@ret]"
   end
   
   def form
@@ -60,14 +49,15 @@ end
 class Puppet < Character
   attr_reader :exp, :parts
   
-  def initialize(name, hp=BASE_HP, atk=BASE_ATK, amr=BASE_AMR, agl=BASE_AGL, ret=BASE_RET)
-    super(name, hp, atk, amr, agl, ret)
+  def initialize(name, hp, mp, atk, amr, agl, atr, ret)
+    super(name, hp, mp, atk, amr, agl, ret)
+    @atr = atr
     @parts = {}
   end
   
   def status
     p_chp = (@chp * 10 / @hp).round
-    "[#{@lvl}] #{@name}\t[#{form}]\t[HP " + "■" * p_chp + "□" * (10 - p_chp) + " #{@chp}/#{@hp}] [#{@atk}|#{@amr}|#{@agl}]"
+    "[#@lvl] #@name\t[#{form}]\t[HP " + "■" * p_chp + "□" * (10 - p_chp) + " #@chp/#@hp] [#@atk|#@amr|#@agl]"
   end
   
   def get_exp(amount)
@@ -112,7 +102,7 @@ class Expedition
     @name
   end
   def info
-    "[#{puppets_level}]\t#{@name}\t[ #{puppets_level_name} ]"
+    "[#{puppets_level}]\t#@name}\t[ #{puppets_level_name} ]"
   end
   
   # 인형
@@ -166,7 +156,7 @@ class Enemy < Character
   
   def status
     p_chp = (@chp * 10 / @hp).round
-    "ENEMY\t[#{@lvl}] #{@name}\t[#{form}]\t[HP " + "■" * p_chp + "□" * (10 - p_chp) + " #{@chp}/#{@hp}]"
+    "ENEMY\t[#@lvl] #@name\t[#{form}]\t[HP " + "■" * p_chp + "□" * (10 - p_chp) + " #@chp/#@hp]"
   end
   
 end

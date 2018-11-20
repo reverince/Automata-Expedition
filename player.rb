@@ -20,11 +20,11 @@ class Player
 	end
 
 	# 인형
-	def puppets_info(with_index=false)
+	def puppets_info(with_index: false)
 		ret = ""
 		@puppets.each_with_index do |puppet, i|
-			ret += (with_index) ? "#{i.to_s}.\t#{puppet.info}" : puppet.info
-			ret += "\n"
+			ret += "#{i.to_s}.\t" if with_index
+			ret += "#{puppet.info}\n"
 		end
 		
 		ret
@@ -34,11 +34,11 @@ class Player
 	end
 	
 	# 원정대
-	def expeditions_info(with_index=false)
+	def expeditions_info(with_index: false)
 		ret = ""
 		@expeditions.each_with_index do |expedition, i|
-			ret += (with_index) ? "#{i.to_s}.\t#{expedition.info}" : expedition.info
-			ret += "\n"
+			ret += "#{i.to_s}.\t" if with_index
+			ret += "#{expedition.info}\n"
 		end
 		
 		ret
@@ -57,12 +57,27 @@ class Player
 			false
 		end
 	end
-	def has_item(item) # 보유 여부 확인
+	def has_item?(item) # 보유 여부 확인
 		@items.keys.map(&:name).index(item.name) ? true : false
 	end
+  def has_item_type?(type) # @dolls 등
+    type.each { |item| has_item?(item) ? (return true) : next }
+    false
+  end
 	def count_item(item)
 		@items[@items.keys[@items.keys.map(&:name).index(item.name)]]
 	end
+  def show_items(type=nil, with_index: false)
+    i = 0
+    type = type.map(&:name) unless type.nil?
+    @items.each do |item, amount|
+      if type.nil? || type.include?(item.name)
+        print "#{i.to_s}.\t" if with_index
+        puts "[#{amount.to_s}개]\t" + item.info
+        i += 1
+      end
+    end
+  end
 	
 	# 실버 / 마네이드
 	def get_silver(amount)

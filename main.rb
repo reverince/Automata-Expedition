@@ -41,9 +41,11 @@ loop do
 		File.delete("save.dat")
 		puts "[DEBUG] 저장 파일이 삭제되었습니다."
 		exit
-		when /EXP(\d+)$/
+		when /^EXP(\d+)$/
 		@chara.puppets[0].get_exp($1.to_i)
-		when /EEE$/
+    when /^MANA(\d+)$/
+    @chara.get_manade($1.to_i)
+		when /^EEE$/
 		battle_sim
 		sleep(5)
 	end
