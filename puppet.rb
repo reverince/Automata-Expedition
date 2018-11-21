@@ -1,7 +1,5 @@
 require_relative "item"
 
-WAIT, ATTACK, GUARD, READY = 0, 1, 2, 4
-
 class Character
   attr_accessor :name, :form, :chp, :cmp
   attr_reader :lvl, :hp, :mp, :atk, :amr, :agl, :ret
@@ -10,13 +8,9 @@ class Character
     @name = name
     @form = WAIT
     @lvl = 0
-    @exp = 0
     @chp = @hp = hp
     @cmp = @mp = mp
-    @atk = atk
-    @amr = amr
-    @agl = agl
-    @ret = ret
+    @atk, @amr, @agl, @ret = atk, amr, agl, ret
   end
   def to_s
     @name
@@ -51,13 +45,14 @@ class Puppet < Character
   
   def initialize(name, hp, mp, atk, amr, agl, atr, ret)
     super(name, hp, mp, atk, amr, agl, ret)
+    @exp = 0
     @atr = atr
     @parts = {}
   end
   
   def status
     p_chp = (@chp * 10 / @hp).round
-    "[#@lvl] #@name\t[#{form}]\t[HP " + "■" * p_chp + "□" * (10 - p_chp) + " #@chp/#@hp] [#@atk|#@amr|#@agl]"
+    "[#@lvl] #@name\t[#{form}]\t[HP " + "■" * p_chp + "□" * (10 - p_chp) + " #@chp/#@hp] [MP #@cmp/#@mp] [#@atk|#@amr|#@agl|#@atr]"
   end
   
   def get_exp(amount)
@@ -102,7 +97,7 @@ class Expedition
     @name
   end
   def info
-    "[#{puppets_level}]\t#@name}\t[ #{puppets_level_name} ]"
+    "[#{puppets_level}]\t#{@name}\t[ #{puppets_level_name} ]"
   end
   
   # 인형
@@ -149,8 +144,8 @@ end
 
 class Enemy < Character
   
-  def initialize(name, hp=BASE_HP, atk=BASE_ATK, amr=BASE_AMR, agl=BASE_AGL, ret=BASE_RET)
-    super(name, hp, atk, amr, agl, ret)
+  def initialize(name, hp: BASE_HP, mp: BASE_MP, atk: BASE_ATK, amr: BASE_AMR, agl: BASE_AGL, ret: BASE_RET)
+    super(name, hp, mp, atk, amr, agl, ret)
     @lvl = [(hp - 100) / 100 + atk + amr + agl, 0].max
   end
   
@@ -164,7 +159,7 @@ end
 class Spider < Enemy
   
   def initialize
-    super("거미", hp=100, atk=20, amr=0, agl=10)
+    super("거미", hp: 100, atk: 20, amr: 0, agl: 10)
   end
   
 end

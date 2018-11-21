@@ -9,8 +9,8 @@ class Player
 		@puppets = []
 		@expeditions = []
 		@items = {}
-		@silver = 100
-		@manade = 100
+		@silver = BASE_SILVER
+		@manade = BASE_MANADE
 	end
 	def to_s
 		@name

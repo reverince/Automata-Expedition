@@ -1,9 +1,8 @@
 require "base64"
+require_relative "const"
 require_relative "josa"
 require_relative "player"
 require_relative "battle"
-
-SAVE_FILE = __dir__ + "/save.dat"
 
 def clear
   system "cls" or system "clear"
@@ -36,7 +35,7 @@ def load_file
       #@map.tiles = Marshal.load(Base64.decode64(f[1]))
       @chara ? ( puts "* 데이터를 불러왔어요! 어서오세요, #{@chara.name}님." ) : ( raise StandardError )
     else
-      #puts "* 저장 파일을 찾을 수 없어요."
+      puts "* 저장 파일을 새로 만들게요."
       new_file
     end
   rescue StandardError
@@ -78,7 +77,7 @@ def menu_expedition # 원정대
     alerting
     puts ""
     if @chara.expeditions.any?
-      puts @chara.expeditions(with_index: true)
+      puts @chara.expeditions_info(with_index: true)
     else
       puts "* 구성한 원정대가 없어요."
     end
@@ -219,7 +218,7 @@ def new_expedition # 원정대 추가
     when "D"
       if expedition.puppets.any?
         @chara.expeditions << expedition
-        @alert = "* 새 원정대 " + josa(expedition.name, "를") + " 만들었어요."
+        @alert = "* 새 원정대 #{josa(expedition.name, "를")} 만들었어요."
         return
       else
         @alert = "[!] 원정대에 아무 인형도 추가하지 않았어요."
@@ -265,7 +264,7 @@ def rename_expedition(i)
   end
   
   @chara.expeditions[i].name = name
-  @alert = "* 원정대 이름을 " + josa(name, "로") + " 바꿨어요."
+  @alert = "* 원정대 이름을 #{josa(name, "로")} 바꿨어요."
 end
 
 def delete_expedition(i)
@@ -274,12 +273,12 @@ def delete_expedition(i)
   end
   
   name = @chara.expeditions[i].name
-  puts "* 정말 원정대 " + josa(name, "를") + " 삭제할까요?"
+  puts "* 정말 원정대 #{josa(name, "를")} 삭제할까요?"
   print "[Y/N] >> "
   
   if input == "Y"
     @chara.expeditions.delete_at(i)
-    @alert = "* 원정대 " + josa(name, "를") + " 삭제했어요."
+    @alert = "* 원정대 #{josa(name, "를")} 삭제했어요."
   end
 end
 
@@ -287,16 +286,22 @@ end
 
 def make_puppet # 인형 제작
   if @chara.has_item_type?(@dolls)
-    @chara.show_items(@dolls, with_index: true)
-    puts "번호를 입력하세요."
-    puts "[Q. 뒤로]"
-    print ">> "
     dolls = @chara.items.keys.select { |item| item.type?(@dolls)}
     doll = nil
     loop do
+      clear
+
+      puts "< 인형 제작 >"
+      puts ""
+      alerting
+      @chara.show_items(@dolls, with_index: true)
+      puts ""
+      puts "번호를 입력하세요."
+      puts "[Q. 뒤로]"
+      print ">> "
       case (ipt = input)
         when /^(\d+)$/
-          doll = dolls[ipt.to_i]
+          doll = dolls[$1.to_i]
           break unless doll.nil?
         when "Q"
           return
@@ -308,13 +313,15 @@ def make_puppet # 인형 제작
   end
   
   @alert = "* #{doll} 1개를 사용해 인형을 제작합니다."
+  price = doll.mp * PRICE_MULTIPLIER
   name = ""
   loop do
-    #clear
+    clear
     
     puts "< 인형 제작 >"
     puts ""
     alerting
+    puts "필요 마네이드 : #{price}ml / #{@chara.manade}ml]"
     puts "[Q. 취소]"
     print "이름 >> "
     return if (name = input) == "Q"
@@ -326,13 +333,13 @@ def make_puppet # 인형 제작
   end
   
   price = doll.mp * 3
-  hp = doll.hp, mp = doll.mp, atk = doll.atk, amr = doll.amr, agl = doll.agl, atr = doll.atr, ret = doll.ret
+  hp, mp, atk, amr, agl, atr, ret = doll.hp, doll.mp, doll.atk, doll.amr, doll.agl, doll.atr, doll.ret
   
   if @chara.use_manade(price)
     puppet = Puppet.new(name, hp, mp, atk, amr, agl, atr, ret)
     @chara.use_item(doll)
     @chara.puppets << puppet
-    puts "* 새 인형 " + josa(name, "를") + " 만들었어요."
+    puts "* 새 인형 #{josa(name, "를")} 만들었어요."
     sleep(1)
   else
     puts "[!] 마네이드가 부족해요."
@@ -360,8 +367,8 @@ def buy_item # 아이템 구매
     print ">> "
     case (ipt = input)
       when /^(\d+)$/
-        if item = items[ipt.to_i]
-          puts "* " + josa(item.name, "는") + " #{item.value}sv인데, 몇 개 사시겠어요?"
+        if item = items[$1.to_i]
+          puts "* #{josa(item.name, "는")} #{item.value}sv인데, 몇 개 사시겠어요?"
           if (amount = input.to_i) > 0
           price = item.value * amount
             if @chara.use_silver(price)
@@ -405,7 +412,7 @@ def sell_item # 아이템 판매
             next
           end
           
-          puts "* " + josa(item.name, "는") + " #{item.value}sv인데, 몇 개 파시겠어요?"
+          puts "* #{josa(item.name, "는")} #{item.value}sv인데, 몇 개 파시겠어요?"
           if (amount = input.to_i) > 0
             price = item.value * amount
             if @chara.use_item(item, amount)
