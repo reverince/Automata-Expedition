@@ -1,0 +1,33 @@
+﻿<Page
+    x:Class="Automata_Expedition.Views.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Automata_Expedition"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:Windows10version1809="http://schemas.microsoft.com/winfx/2006/xaml/presentation?IsApiContractPresent(Windows.Foundation.UniversalApiContract, 7)"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+
+        <NavigationView x:Name="navView"
+                        SelectionChanged="NavView_SelectionChanged"
+                        AlwaysShowHeader="True">
+            <Windows10version1809:NavigationView.PaneHeader>
+                <TextBlock Text="Automata Expedition" VerticalAlignment="Center"/>
+            </Windows10version1809:NavigationView.PaneHeader>
+            <NavigationView.MenuItems>
+                <NavigationViewItem x:Name="navHQ" Icon="Home" Content="본부"/>
+                <NavigationViewItem x:Name="navExpedition" Icon="Edit" Content="원정대"/>
+                <NavigationViewItem x:Name="navWorkshop" Icon="Repair" Content="공방"/>
+                <NavigationViewItemSeparator/>
+                <NavigationViewItem x:Name="navShop" Icon="Shop" Content="상점"/>
+                <NavigationViewItemSeparator/>
+                <NavigationViewItem x:Name="navFerry" Icon="Globe" Content="출정"/>
+            </NavigationView.MenuItems>
+            <Frame x:Name="frameMain"/>
+        </NavigationView>
+        
+    </Grid>
+</Page>

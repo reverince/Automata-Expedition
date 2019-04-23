@@ -1,0 +1,40 @@
+﻿<Page
+    x:Class="Automata_Expedition.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Automata_Expedition.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <RelativePanel>
+
+            <StackPanel x:Name="stk1" Margin="50" Orientation="Vertical">
+                <TextBlock Text="설정"
+                           Style="{StaticResource HeaderTextBlockStyle}"
+                           Margin="0 0 10 0"/>
+                <TextBlock Text="사운드"
+                    Style="{StaticResource TitleTextBlockStyle}"
+                    Margin="0 10 0 0"/>
+                <ToggleSwitch x:Name="toggleSound"
+                              Toggled="ToggleSound_Toggled"
+                              IsOn="false"/>
+                <CheckBox x:Name="checkSpacialSound" Content="스테레오"
+                          Checked="CheckSpacialSound_Checked"
+                          Unchecked="CheckSpacialSound_Unchecked"
+                          IsChecked="False" IsEnabled="False"/>
+                <TextBlock Text="테마"
+                    Style="{StaticResource TitleTextBlockStyle}"
+                    Margin="0 10 0 0"/>
+                <StackPanel x:Name="panelTheme">
+                    <RadioButton Tag="Light" Checked="RadioTheme_Checked" Content="밝게"/>
+                    <RadioButton Tag="Dark" Checked="RadioTheme_Checked" Content="어둡게"/>
+                    <RadioButton Tag="Default" Checked="RadioTheme_Checked" Content="윈도우 설정대로"/>
+                </StackPanel>
+            </StackPanel>
+
+        </RelativePanel>
+    </Grid>
+</Page>
