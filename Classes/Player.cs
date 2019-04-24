@@ -9,13 +9,31 @@ namespace Automata_Expedition.Classes
     [Serializable]
     class Player
     {
-        private string name;
-
-        public Player(string _name)
+        private static Player instance;
+        public static Player Instance
         {
-            this.name = _name;
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new Player();
+                    instance.Name = "플레이어";
+                }
+                return instance;
+            }
         }
+        private Player() { }
 
         public string Name { get; set; }
+        public Dictionary<string, Puppet> Puppets { get; }
+
+        public void AddPuppet(Puppet puppet)
+        {
+            Puppets.Add(puppet.Name, puppet);
+        }
+        public Puppet RemovePuppet(string name)
+        {
+            return Puppets[name];
+        }
     }
 }

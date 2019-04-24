@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Automata_Expedition.Classes;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -56,6 +57,7 @@ namespace Automata_Expedition
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
                 {
                     //TODO: 이전에 일시 중지된 애플리케이션에서 상태를 로드합니다.
+                    GameManager.Load();
                 }
 
                 // 현재 창에 프레임 넣기
@@ -101,7 +103,10 @@ namespace Automata_Expedition
         private void OnSuspending(object sender, SuspendingEventArgs e)
         {
             var deferral = e.SuspendingOperation.GetDeferral();
+
             //TODO: 애플리케이션 상태를 저장하고 백그라운드 작업을 모두 중지합니다.
+            GameManager.Save();
+
             deferral.Complete();
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Automata_Expedition.Classes;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -28,6 +29,13 @@ namespace Automata_Expedition.Views
         {
             this.InitializeComponent();
             this.NavigationCacheMode = Windows.UI.Xaml.Navigation.NavigationCacheMode.Enabled;
+
+            UpdateComponent();
+        }
+
+        private void UpdateComponent()
+        {
+            txtPlayerName.Text = Game.Instance.Player.Name;
         }
 
         private void BtnEditName_Click(object sender, RoutedEventArgs e)
@@ -37,54 +45,48 @@ namespace Automata_Expedition.Views
             textBox.Name = "boxEditName";
             textBox.PlaceholderText = "새 이름";
             textBox.MinWidth = 100;
-            textBox.PointerExited += boxEditName_Completed;
+            textBox.KeyDown += boxEditName_Finish;
             stkPlayerName.Children.RemoveAt(0);
             stkPlayerName.Children.Insert(0, textBox);
+            textBox.Focus(FocusState.Programmatic);
         }
 
-        private void boxEditName_Completed(object sender, RoutedEventArgs e)
+        private void boxEditName_Finish(object sender, KeyRoutedEventArgs e)
         {
-            TextBox textBox = FindName("boxEditName") as TextBox;
-            string name = textBox.Text;
-            TextBlock textBlock = new TextBlock();
-            textBlock.Name = "txtPlayerName";
-            textBlock.Text = name;
-            textBlock.Style = (Style)Application.Current.Resources["TitleTextBlockStyle"];
-            stkPlayerName.Children.RemoveAt(0);
-            stkPlayerName.Children.Insert(0, textBlock);
+            if (e.Key == Windows.System.VirtualKey.Enter)
+            {
+                TextBox textBox = FindName("boxEditName") as TextBox;
+                string name = textBox.Text;
+                Game.Instance.Player.Name = name;
+                TextBlock textBlock = new TextBlock();
+                textBlock.Name = "txtPlayerName";
+                textBlock.Text = name;
+                textBlock.Style = (Style)Application.Current.Resources["TitleTextBlockStyle"];
+                stkPlayerName.Children.RemoveAt(0);
+                stkPlayerName.Children.Insert(0, textBlock);
+
+                UpdateComponent();
+            }
         }
 
-        private async void BtnSave_Click(object sender, RoutedEventArgs e)
+        private void BtnSave_Click(object sender, RoutedEventArgs e)
         {
-            Windows.Storage.StorageFolder storageFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
-            Windows.Storage.StorageFile storageFile =
-                await storageFolder.CreateFileAsync(SAVE_FILE, Windows.Storage.CreationCollisionOption.OpenIfExists);
-
-            // 파일 저장 완료 상태 설정
-            Windows.Storage.Provider.FileUpdateStatus status =
-                await Windows.Storage.CachedFileManager.CompleteUpdatesAsync(storageFile);
-
-            if (status == Windows.Storage.Provider.FileUpdateStatus.Complete)
-            {
-                txtSaveResult.Text = "저장 완료!";
-            }
-            else
-            {
-                txtSaveResult.Text = "저장 실패...";
-            }
+            GameManager.Save();
+            txtSaveResult.Text = "저장 완료!";
             FlyoutBase.ShowAttachedFlyout((FrameworkElement)sender);
         }
 
         private async void BtnLoad_Click(object sender, RoutedEventArgs e)
         {
-            Windows.Storage.StorageFolder storageFolder = Windows.Storage.ApplicationData.Current.LocalFolder;
+            GameManager.Load();
+            Windows.Storage.ApplicationDataContainer localSettings = Windows.Storage.ApplicationData.Current.LocalSettings;
 
-            if (await storageFolder.TryGetItemAsync(SAVE_FILE) != null)
+            if (localSettings.Values.ContainsKey("Game"))
             {
-                Windows.Storage.StorageFile storageFile =
-                    await storageFolder.GetFileAsync(SAVE_FILE);
-
+                GameManager.Load();
                 txtLoadResult.Text = "불러오기 완료!";
+
+                UpdateComponent();
             }
             else
             {

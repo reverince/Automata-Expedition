@@ -7,9 +7,9 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="2882243a-f141-4fb4-823b-6a2f70bf5015"
+    Name="Automata-Expedition"
     Publisher="CN=CHO"
-    Version="0.1.0.0" />
+    Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="2882243a-f141-4fb4-823b-6a2f70bf5015" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 

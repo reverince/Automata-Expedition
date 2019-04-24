@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Automata_Expedition.Classes;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -28,6 +29,9 @@ namespace Automata_Expedition.Views
         {
             this.InitializeComponent();
             this.NavigationCacheMode = Windows.UI.Xaml.Navigation.NavigationCacheMode.Enabled;
+
+            toggleSound.IsOn = Game.Instance.ElementSoundPlayerState == ElementSoundPlayerState.On;
+            checkSpacialSound.IsChecked = Game.Instance.ElementSpatialAudioMode == ElementSpatialAudioMode.On;
         }
 
         private void ToggleSound_Toggled(object sender, RoutedEventArgs e)
@@ -35,11 +39,13 @@ namespace Automata_Expedition.Views
             if (toggleSound.IsOn == true)
             {
                 ElementSoundPlayer.State = ElementSoundPlayerState.On;
+                Game.Instance.ElementSoundPlayerState = ElementSoundPlayerState.On;
                 checkSpacialSound.IsEnabled = true;
             }
             else
             {
                 ElementSoundPlayer.State = ElementSoundPlayerState.Off;
+                Game.Instance.ElementSoundPlayerState = ElementSoundPlayerState.Off;
                 checkSpacialSound.IsEnabled = false;
             }
         }
@@ -47,11 +53,13 @@ namespace Automata_Expedition.Views
         private void CheckSpacialSound_Checked(object sender, RoutedEventArgs e)
         {
             ElementSoundPlayer.SpatialAudioMode = ElementSpatialAudioMode.On;
+            Game.Instance.ElementSpatialAudioMode = ElementSpatialAudioMode.On;
         }
 
         private void CheckSpacialSound_Unchecked(object sender, RoutedEventArgs e)
         {
             ElementSoundPlayer.SpatialAudioMode = ElementSpatialAudioMode.Off;
+            Game.Instance.ElementSpatialAudioMode = ElementSpatialAudioMode.Off;
         }
 
         private void RadioTheme_Checked(object sender, RoutedEventArgs e)

@@ -9,30 +9,37 @@ namespace Automata_Expedition.Classes
     [Serializable]
     class Puppet
     {
-        private string name;
-        private int level, exp;
-        private int chp, hp;
-        private int atk, amr, agl;
+        public string Name { get; set; }
+        public int Level { get; }
+        public int Exp { get; }
+        public int Chp { get; }
+        public int Hp { get; }
+        public int Atk, Amr, Agl;
 
         public Puppet(string _name, int _hp, int _atk, int _amr, int _agl)
         {
-            name = _name;
-            level = 1;
-            exp = 0;
-            chp = hp = _hp;
-            atk = _atk;
-            amr = _amr;
-            agl = _agl;
+            Name = _name;
+            Level = 1;
+            Exp = 0;
+            Chp = Hp = _hp;
+            Atk = _atk;
+            Amr = _amr;
+            Agl = _agl;
         }
 
         public override string ToString()
         {
-            return $"[{level}] {name}";
+            return $"[{Level}] {Name}";
         }
         
         public bool isAlive()
         {
-            return chp > 0;
+            return Chp > 0;
         }
+    }
+
+    public class Expedition
+    {
+        
     }
 }

@@ -5,13 +5,14 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI.Xaml;
 
 namespace Automata_Expedition.Classes
 {
+    [Serializable]
     class Game
     {
         private static Game instance;
-        private Game() { }
         public static Game Instance
         {
             get
@@ -20,28 +21,26 @@ namespace Automata_Expedition.Classes
                     instance = new Game();
                 return instance;
             }
-        }
-
-        const string SAVE_FILE = "save.txt";
-        private BinaryFormatter formatter = null;
-        private Player player;
-
-        public void Save()
-        {
-            FileStream writerFileStream = new FileStream(SAVE_FILE, FileMode.Create, FileAccess.Write);
-            this.formatter.Serialize(writerFileStream, this.player);
-            writerFileStream.Close();
-        }
-
-        public void Load()
-        {
-            if (File.Exists(SAVE_FILE))
+            set
             {
-                FileStream readerFileStream = new FileStream(SAVE_FILE, FileMode.Open, FileAccess.Read);
-                this.player = (Player)this.formatter.Deserialize(readerFileStream);
-                readerFileStream.Close();
+                instance = value;
             }
         }
+        private Game() { }
+
+        public Player Player
+        {
+            get
+            {
+                return Player.Instance;
+            }
+            set
+            {
+
+            }
+        }
+        public ElementSoundPlayerState ElementSoundPlayerState { get; set; }
+        public ElementSpatialAudioMode ElementSpatialAudioMode { get; set; }
 
     }
 }
